@@ -9,7 +9,9 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/mheers/k8s-secret-ui/helpers"
 	"github.com/mheers/k8s-secret-ui/pkg/util"
+	"github.com/mheers/k8s-secret-ui/web"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog"
@@ -25,6 +27,9 @@ var (
 	masterURL  string
 	kubeconfig string
 	kubeclient *kubernetes.Clientset
+
+	// EmbedFrontendFiles holds the frontend files
+	EmbedFrontendFiles = web.Assets()
 )
 
 func main() {
@@ -40,6 +45,15 @@ func main() {
 	fmt.Println(namespaces)
 
 	router := mux.NewRouter()
+
+	// frontend static files
+	// redirect all not-found-requests to index.html
+	fileSystem404 := func(w http.ResponseWriter, r *http.Request) (doDefaultFileServe bool) {
+		//if not found redirect to /
+		r.URL.Path = "/"
+		return true
+	}
+
 	router.HandleFunc(namespacesBaseURL, getNamespaces).Methods("GET")
 	router.HandleFunc(configMapBaseURL+"/{cmns}", getConfigMapsOfNS).Methods("GET")
 	router.HandleFunc(configMapBaseURL+"/{cmns}/{cmname}", getConfigMap).Methods("GET")
@@ -52,6 +66,8 @@ func main() {
 	router.HandleFunc(secretBaseURL+"/{secretns}/{secretname}", updateSecret).Methods("PUT")
 	router.HandleFunc(secretBaseURL+"/{secretns}/{secretname}", deleteSecret).Methods("DELETE")
 	router.HandleFunc(secretBaseURL, createSecret).Methods("POST")
+
+	router.PathPrefix("/").Handler(helpers.FileServerWith404(http.FS(EmbedFrontendFiles), fileSystem404))
 
 	hostPort := ":8000"
 	// allow CORS
