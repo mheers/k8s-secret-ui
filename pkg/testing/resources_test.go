@@ -3,7 +3,7 @@ package util
 import (
 	"context"
 	"errors"
-	"io/ioutil"
+	"os"
 	"reflect"
 	"testing"
 
@@ -170,7 +170,7 @@ func (unit *unitTestSuite) createTestSecrets(data TestData) error {
 }
 
 func readTestData() (TestData, error) {
-	data, err := ioutil.ReadFile("./testdata/data.yaml")
+	data, err := os.ReadFile("./testdata/data.yaml")
 	if err != nil {
 		return TestData{}, err
 	}

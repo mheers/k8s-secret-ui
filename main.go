@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"flag"
@@ -11,7 +12,6 @@ import (
 	"github.com/mheers/k8s-secret-ui/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/klog"
 )
 
@@ -29,14 +29,15 @@ var (
 
 func main() {
 	flag.Parse()
-	config, err := clientcmd.BuildConfigFromFlags(masterURL, kubeconfig)
+	var err error
+	kubeclient, err = getK8sClient()
 	if err != nil {
-		klog.Fatalf("Error while building config from flag: %s", err.Error())
+		klog.Fatalf("Error %s getting the k8s client.", err.Error())
 	}
-	kubeclient, err = kubernetes.NewForConfig(config)
-	if err != nil {
-		klog.Fatalf("Error while getting clientset from config: %s", err.Error())
-	}
+
+	// get namespaces
+	namespaces := util.GetNamespaces(kubeclient)
+	fmt.Println(namespaces)
 
 	router := mux.NewRouter()
 	router.HandleFunc(namespacesBaseURL, getNamespaces).Methods("GET")
@@ -153,9 +154,6 @@ func updateConfigMap(res http.ResponseWriter, req *http.Request) {
 
 	json.NewEncoder(res).Encode(util.UpdateConfigMap(kubeclient, cmns, cmName, configmap))
 
-}
-func listConfigMaps(res http.ResponseWriter, req *http.Request) {
-	json.NewEncoder(res).Encode(util.ListConfigMaps(kubeclient))
 }
 
 func init() {
