@@ -1,12 +1,13 @@
 package util
 
 import (
+	"context"
 	"errors"
 	"io/ioutil"
 	"reflect"
 	"testing"
 
-	"github.com/viveksinghggits/kuui/pkg/util"
+	"github.com/mheers/k8s-secret-ui/pkg/util"
 	"sigs.k8s.io/yaml"
 
 	. "gopkg.in/check.v1"
@@ -138,7 +139,7 @@ func (unit *unitTestSuite) createTestConfigMaps(data TestData) error {
 			},
 			Data: v.Data,
 		}
-		_, err := unit.kubeclient.CoreV1().ConfigMaps(unit.testNS).Create(&cm)
+		_, err := unit.kubeclient.CoreV1().ConfigMaps(unit.testNS).Create(context.Background(), &cm, metav1.CreateOptions{})
 		if err != nil {
 			return err
 		}
@@ -160,7 +161,7 @@ func (unit *unitTestSuite) createTestSecrets(data TestData) error {
 			},
 			Data: secretData,
 		}
-		_, err := unit.kubeclient.CoreV1().Secrets(unit.testNS).Create(&secret)
+		_, err := unit.kubeclient.CoreV1().Secrets(unit.testNS).Create(context.Background(), &secret, metav1.CreateOptions{})
 		if err != nil {
 			return err
 		}
@@ -192,7 +193,7 @@ func (unit *unitTestSuite) CreateTestNS() error {
 			Name: unit.testNS,
 		},
 	}
-	_, err := unit.kubeclient.CoreV1().Namespaces().Create(&ns)
+	_, err := unit.kubeclient.CoreV1().Namespaces().Create(context.Background(), &ns, metav1.CreateOptions{})
 	return err
 }
 
@@ -209,6 +210,6 @@ func (unit *unitTestSuite) TearDownSuite(c *C) {
 		c.Assert(err, IsNil)
 	}
 
-	err := unit.kubeclient.CoreV1().Namespaces().Delete(unit.testNS, &metav1.DeleteOptions{})
+	err := unit.kubeclient.CoreV1().Namespaces().Delete(context.Background(), unit.testNS, metav1.DeleteOptions{})
 	c.Assert(err, IsNil)
 }

@@ -8,7 +8,7 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	"github.com/viveksinghggits/kuui/pkg/util"
+	"github.com/mheers/k8s-secret-ui/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"

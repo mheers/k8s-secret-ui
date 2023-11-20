@@ -1,4 +1,7 @@
 # KuUI (Kubernetes UI)
+
+Imported from https://github.com/viveksinghggits/kuui
+
 The main purpose of this application is to have a simple UI that can be used to manage the configmaps/secrets of your Kubernetes cluster.
 
 # Installation
@@ -10,7 +13,7 @@ To use this project either you can build it from source or download the binaries
 To build the project from source, please clone it on your machine using below command
 
 ```
-git clone https://github.com/viveksinghggits/kuui.git
+git clone https://github.com/mheers/k8s-secret-ui.git
 ```
 
 and you can build the project using the command `go build -o kuui`. Optionally you can move the created binary
