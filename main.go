@@ -9,9 +9,9 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	"github.com/mheers/k8s-secret-ui/frontend"
 	"github.com/mheers/k8s-secret-ui/helpers"
 	"github.com/mheers/k8s-secret-ui/pkg/util"
-	"github.com/mheers/k8s-secret-ui/web"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog"
@@ -30,7 +30,7 @@ var (
 	kubeclient *kubernetes.Clientset
 
 	// EmbedFrontendFiles holds the frontend files
-	EmbedFrontendFiles = web.Assets()
+	EmbedFrontendFiles = frontend.Assets()
 )
 
 func main() {

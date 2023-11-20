@@ -2,3 +2,4 @@ kuui
 main
 __debug_bin*
 .vscode/
+docker-compose.yaml
