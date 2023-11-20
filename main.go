@@ -18,9 +18,10 @@ import (
 )
 
 const (
-	configMapBaseURL  = "/configs"
-	secretBaseURL     = "/secrets"
-	namespacesBaseURL = "/namespaces"
+	configMapBaseURL  = "/api/configs"
+	secretBaseURL     = "/api/secrets"
+	namespacesBaseURL = "/api/namespaces"
+	settingsBaseURL   = "/api/settings"
 )
 
 var (
@@ -53,6 +54,8 @@ func main() {
 		r.URL.Path = "/"
 		return true
 	}
+
+	router.HandleFunc(settingsBaseURL, getSettings).Methods("GET")
 
 	router.HandleFunc(namespacesBaseURL, getNamespaces).Methods("GET")
 	router.HandleFunc(configMapBaseURL+"/{cmns}", getConfigMapsOfNS).Methods("GET")
@@ -170,6 +173,10 @@ func updateConfigMap(res http.ResponseWriter, req *http.Request) {
 
 	json.NewEncoder(res).Encode(util.UpdateConfigMap(kubeclient, cmns, cmName, configmap))
 
+}
+
+func getSettings(res http.ResponseWriter, req *http.Request) {
+	json.NewEncoder(res).Encode(GetSettings())
 }
 
 func init() {
