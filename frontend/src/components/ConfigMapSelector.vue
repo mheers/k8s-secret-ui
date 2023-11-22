@@ -2,6 +2,7 @@
   <div>
     <label for="configMapDropdown">Select ConfigMap:</label>
     <v-select
+      :clearable="true"
       id="configMapDropdown"
       :items="configItems"
       @update:modelValue="handleConfigMapChange"

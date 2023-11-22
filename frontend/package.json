@@ -10,6 +10,7 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
   },
   "dependencies": {
+    "@mdi/font": "^7.3.67",
     "vue": "^3.3.4",
     "vue3-ace-editor": "^2.2.4",
     "vuetify": "^3.4.2"

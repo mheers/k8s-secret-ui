@@ -2,6 +2,7 @@
   <div>
     <label for="namespaceDropdown">Select Namespace:</label>
     <v-select
+      :clearable="true"
       id="namespaceDropdown"
       :items="namespaceItems"
       @update:modelValue="handleNamespaceChange"
