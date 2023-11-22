@@ -13,7 +13,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, defineProps, defineEmits } from "vue";
 
-const props = defineProps(["namespace"]);
+const props = defineProps(["namespaceName"]);
 const emit = defineEmits(["change"]);
 
 // Define reactive variables
@@ -21,7 +21,7 @@ const configs = ref([]);
 const selectedConfig = ref("");
 
 watch(
-  () => props.namespace,
+  () => props.namespaceName,
   () => {
     updateValues();
   }
@@ -35,7 +35,7 @@ onMounted(async () => {
 const updateValues = async () => {
   try {
     const response = await fetch(
-      `http://localhost:8000/api/configs/${props.namespace}`
+      `http://localhost:8000/api/configs/${props.namespaceName}`
     );
     const data = await response.json();
     configs.value = data; // Assuming data is an array of configs

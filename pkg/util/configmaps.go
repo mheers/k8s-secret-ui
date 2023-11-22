@@ -44,7 +44,9 @@ func GetNamespaces(kubeclient *kubernetes.Clientset) []corev1.Namespace {
 }
 
 func GetConfigMapsOfNS(kubeclient *kubernetes.Clientset, namespace string) []corev1.ConfigMap {
-	configMaps, err := kubeclient.CoreV1().ConfigMaps(namespace).List(context.Background(), metav1.ListOptions{})
+	configMaps, err := kubeclient.CoreV1().ConfigMaps(namespace).List(context.Background(), metav1.ListOptions{
+		Limit: 100,
+	})
 	if err != nil {
 		klog.Errorf("Error while listing all CMs of a NS %s", err.Error())
 	}
