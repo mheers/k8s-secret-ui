@@ -13,14 +13,20 @@
       <v-card-text>
         <v-window v-model="tab">
           <v-window-item value="configmap">
-            <config-map-selector
-              @change="(newConfigMapName) => (configmapName = newConfigMapName)"
-              v-if="namespaceName"
-              :namespaceName="namespaceName"
-            />
+            <v-row>
+              <v-col>
+                <config-map-selector
+                  @change="
+                    (newConfigMapName) => (configMapName = newConfigMapName)
+                  "
+                  v-if="namespaceName"
+                  :namespaceName="namespaceName"
+                />
+              </v-col>
+            </v-row>
             <config-map-editor
-              v-if="namespaceName && configmapName"
-              :configmapName="configmapName"
+              v-if="namespaceName && configMapName"
+              :configMapName="configMapName"
               :namespaceName="namespaceName"
             />
           </v-window-item>
@@ -35,9 +41,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const namespaceName = ref("");
+const namespaceName = ref("default");
 const secretName = ref("");
-const configmapName = ref("");
+const configMapName = ref("");
 const tab = ref("configmap");
 
 import NamespaceSelector from "./NamespaceSelector.vue";

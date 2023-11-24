@@ -1,13 +1,24 @@
 <template>
-  <div>
-    <label for="configMapDropdown">Select ConfigMap:</label>
-    <v-select
-      :clearable="true"
-      id="configMapDropdown"
-      :items="configItems"
-      @update:modelValue="handleConfigMapChange"
+  <label for="configMapDropdown">Select ConfigMap:</label>
+  <v-select
+    :clearable="true"
+    id="configMapDropdown"
+    :items="configItems"
+    @update:modelValue="handleConfigMapChange"
+  >
+    <template #append>
+      <v-btn color="primary" @click="updateValues()"> refresh </v-btn>
+      <v-btn color="secondary" @click="dialog = true"> + </v-btn>
+    </template>
+  </v-select>
+
+  <v-dialog v-model="dialog" max-width="500px">
+    <config-map-creator
+      v-if="namespaceName"
+      :namespaceName="namespaceName"
+      @close="dialog = false"
     />
-  </div>
+  </v-dialog>
 </template>
 
 <script setup lang="ts">
@@ -19,6 +30,7 @@ const emit = defineEmits(["change"]);
 // Define reactive variables
 const configs = ref([]);
 const selectedConfig = ref("");
+const dialog = ref<boolean>(false);
 
 watch(
   () => props.namespaceName,
@@ -55,4 +67,6 @@ const configItems = computed(() => {
     return config.metadata.name;
   });
 });
+
+import ConfigMapCreator from "./ConfigMapCreator.vue";
 </script>

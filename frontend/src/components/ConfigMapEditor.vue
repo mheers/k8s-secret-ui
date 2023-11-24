@@ -1,40 +1,41 @@
 <template>
-  <div>
-    <v-text-field
-      v-model:value="configmapNameRO"
-      readonly
-      active
-      label="Name"
-      :counter="63"
-      :counter-value="configmapNameRO.length"
-    />
+  <label-editor :labels="labels" />
 
-    <label-editor :labels="labels" />
+  <v-ace-editor
+    v-model:value="content"
+    lang="json"
+    theme="chrome"
+    style="height: 300px"
+    active
+  />
 
-    <v-ace-editor
-      v-model:value="content"
-      lang="json"
-      theme="chrome"
-      style="height: 300px"
-      active
+  <v-dialog v-model="dialog" max-width="500px">
+    <config-map-deleter
+      v-if="namespaceName"
+      :namespaceName="namespaceName"
+      :configMapName="configMapName"
+      @close="dialog = false"
     />
-  </div>
+  </v-dialog>
+
+  <v-btn color="primary" @click="saveConfigMap"> Save </v-btn>
+  <v-btn color="error" @click="dialog = true"> Delete </v-btn>
 </template>
 
 <script setup lang="ts">
 import { VAceEditor } from "vue3-ace-editor";
-import LabelEditor from "./LabelEditor.vue";
 import { ref, onMounted, watch } from "vue";
 
-const props = defineProps(["namespaceName", "configmapName"]);
+const props = defineProps(["namespaceName", "configMapName"]);
 
 // Define reactive variables
 const content = ref("");
 const labels = ref<Map<string, string>>();
 const configmapNameRO = ref<string>("");
+const dialog = ref<boolean>(false);
 
 watch(
-  () => props.configmapName,
+  () => props.configMapName,
   () => {
     updateValue();
   }
@@ -48,7 +49,7 @@ onMounted(async () => {
 const updateValue = async () => {
   try {
     const response = await fetch(
-      `http://localhost:8000/api/configs/${props.namespaceName}/${props.configmapName}`
+      `http://localhost:8000/api/configs/${props.namespaceName}/${props.configMapName}`
     );
     const data = await response.json();
 
@@ -61,4 +62,7 @@ const updateValue = async () => {
     console.error("Error fetching configs:", error);
   }
 };
+
+import LabelEditor from "./LabelEditor.vue";
+import ConfigMapDeleter from "./ConfigMapDeleter.vue";
 </script>
