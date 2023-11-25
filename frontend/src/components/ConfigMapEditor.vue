@@ -1,12 +1,15 @@
 <template>
   <label-editor v-model="labels" />
 
+  <value-editor v-model="data" />
+
   <v-ace-editor
     v-model:value="content"
     lang="json"
     theme="chrome"
     style="height: 300px"
     active
+    v-if="false"
   />
 
   <v-dialog v-model="dialog" max-width="500px">
@@ -33,6 +36,7 @@ const props = defineProps(["namespaceName", "configMapName"]);
 
 // Define reactive variables
 const content = ref("");
+const data = ref<Map<string, string>>();
 const labels = ref<Map<string, string>>();
 const configmapNameRO = ref<string>("");
 const dialog = ref<boolean>(false);
@@ -52,16 +56,19 @@ onMounted(async () => {
 const getConfigMap = () => {
   cms
     .getConfigMap(props.namespaceName, props.configMapName)
-    .then((data) => {
+    .then((cm) => {
       labels.value = new Map();
+      data.value = new Map();
 
-      content.value = JSON.stringify(data.data); // Assuming data is an array of configs
+      content.value = JSON.stringify(cm.data); // Assuming data is an array of configs
 
-      if (data.metadata) {
-        configmapNameRO.value = data.metadata.name;
+      data.value = new Map(Object.entries(cm.data));
 
-        if (data.metadata.labels) {
-          labels.value = new Map(Object.entries(data.metadata.labels));
+      if (cm.metadata) {
+        configmapNameRO.value = cm.metadata.name;
+
+        if (cm.metadata.labels) {
+          labels.value = new Map(Object.entries(cm.metadata.labels));
         }
       }
     })
@@ -76,7 +83,7 @@ const saveConfigMap = () => {
       props.namespaceName,
       props.configMapName,
       toRaw(labels.value ?? new Map<string, string>()),
-      JSON.parse(content.value)
+      toRaw(data.value ?? new Map<string, string>())
     )
     .then(() => {})
     .catch((error) => {
@@ -85,5 +92,6 @@ const saveConfigMap = () => {
 };
 
 import LabelEditor from "./LabelEditor.vue";
+import ValueEditor from "./ValueEditor.vue";
 import ConfigMapDeleter from "./ConfigMapDeleter.vue";
 </script>

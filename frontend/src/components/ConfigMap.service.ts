@@ -1,6 +1,6 @@
 export default class ConfigMapService {
-    public saveConfigMap(namespaceName: string, configMapName: string, labels: Map<string, string>, content: Map<string, string>) {
-        console.log("saveConfigMap", namespaceName, configMapName, labels, content);
+    public saveConfigMap(namespaceName: string, configMapName: string, labels: Map<string, string>, data: Map<string, string>) {
+        console.log("saveConfigMap", namespaceName, configMapName, labels, data);
         return fetch(`/api/configs/${namespaceName}/${configMapName}`, {
             method: "PUT",
             headers: {
@@ -12,7 +12,7 @@ export default class ConfigMapService {
                     "namespace": namespaceName,
                     "labels": Object.fromEntries(labels),
                 },
-                "data": content,
+                "data": Object.fromEntries(data),
             }),
         });
     };
