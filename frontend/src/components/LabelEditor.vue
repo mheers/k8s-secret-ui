@@ -53,10 +53,10 @@ import { ref, defineProps, watch, onMounted } from "vue";
 
 import type { Label } from "./types";
 
-const props = defineProps({ labels: { type: Map<string, string> } });
+const props = defineProps({ modelValue: { type: Map<string, string> } });
 
 watch(
-  () => props.labels,
+  () => props.modelValue,
   () => {
     updateLabels();
   }
@@ -68,7 +68,7 @@ onMounted(async () => {
 });
 
 const updateLabels = () => {
-  labels.value = props.labels;
+  labels.value = props.modelValue;
 };
 
 const label = ref<Label>({

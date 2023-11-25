@@ -1,5 +1,5 @@
 export default class ConfigMapService {
-    public saveConfigMap(namespaceName: string, configMapName: string, labels: Map<string, string> | undefined, content: Map<string, string> | undefined) {
+    public saveConfigMap(namespaceName: string, configMapName: string, labels: Map<string, string>, content: Map<string, string>) {
         console.log("saveConfigMap", namespaceName, configMapName, labels, content);
         return fetch(`/api/configs/${namespaceName}/${configMapName}`, {
             method: "PUT",
@@ -10,7 +10,7 @@ export default class ConfigMapService {
                 "metadata": {
                     "name": configMapName,
                     "namespace": namespaceName,
-                    "labels": labels,
+                    "labels": Object.fromEntries(labels),
                 },
                 "data": content,
             }),

@@ -1,5 +1,5 @@
 <template>
-  <label-editor :labels="labels" />
+  <label-editor v-model="labels" />
 
   <v-ace-editor
     v-model:value="content"
@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
 import { VAceEditor } from "vue3-ace-editor";
-import { ref, onMounted, watch } from "vue";
+import { ref, onMounted, watch, toRaw } from "vue";
 
 import ConfigMapService from "./ConfigMap.service";
 const cms = new ConfigMapService();
@@ -75,7 +75,7 @@ const saveConfigMap = () => {
     .saveConfigMap(
       props.namespaceName,
       props.configMapName,
-      labels.value,
+      toRaw(labels.value ?? new Map<string, string>()),
       JSON.parse(content.value)
     )
     .then(() => {})
