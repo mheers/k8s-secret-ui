@@ -26,6 +26,9 @@
 import { VAceEditor } from "vue3-ace-editor";
 import { ref, onMounted, watch } from "vue";
 
+import ConfigMapService from "./ConfigMap.service";
+const cms = new ConfigMapService();
+
 const props = defineProps(["namespaceName", "configMapName"]);
 
 // Define reactive variables
@@ -37,30 +40,48 @@ const dialog = ref<boolean>(false);
 watch(
   () => props.configMapName,
   () => {
-    updateValue();
+    getConfigMap();
   }
 );
 
 // Fetch configs on component mount
 onMounted(async () => {
-  updateValue();
+  getConfigMap();
 });
 
-const updateValue = async () => {
-  try {
-    const response = await fetch(
-      `http://localhost:8000/api/configs/${props.namespaceName}/${props.configMapName}`
-    );
-    const data = await response.json();
+const getConfigMap = () => {
+  cms
+    .getConfigMap(props.namespaceName, props.configMapName)
+    .then((data) => {
+      labels.value = new Map();
 
-    labels.value = new Map();
+      content.value = JSON.stringify(data.data); // Assuming data is an array of configs
 
-    configmapNameRO.value = data.metadata.name;
-    labels.value = new Map(Object.entries(data.metadata.labels));
-    content.value = JSON.stringify(data.data); // Assuming data is an array of configs
-  } catch (error) {
-    console.error("Error fetching configs:", error);
-  }
+      if (data.metadata) {
+        configmapNameRO.value = data.metadata.name;
+
+        if (data.metadata.labels) {
+          labels.value = new Map(Object.entries(data.metadata.labels));
+        }
+      }
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+};
+
+const saveConfigMap = () => {
+  cms
+    .saveConfigMap(
+      props.namespaceName,
+      props.configMapName,
+      labels.value,
+      JSON.parse(content.value)
+    )
+    .then(() => {})
+    .catch((error) => {
+      console.error(error);
+    });
 };
 
 import LabelEditor from "./LabelEditor.vue";

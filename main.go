@@ -169,9 +169,19 @@ func updateConfigMap(res http.ResponseWriter, req *http.Request) {
 	cmns := queryParams["cmns"]
 
 	var configmap corev1.ConfigMap
-	json.NewDecoder(req.Body).Decode(&configmap)
+	err := json.NewDecoder(req.Body).Decode(&configmap)
+	if err != nil {
+		klog.Errorf("Error while decoding the configmap: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
 
-	json.NewEncoder(res).Encode(util.UpdateConfigMap(kubeclient, cmns, cmName, configmap))
+	err = json.NewEncoder(res).Encode(util.UpdateConfigMap(kubeclient, cmns, cmName, configmap))
+	if err != nil {
+		klog.Errorf("Error while encoding the configmap: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
 
 }
 

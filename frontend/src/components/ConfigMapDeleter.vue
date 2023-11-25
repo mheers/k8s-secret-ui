@@ -44,7 +44,8 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from "vue";
 
-import { deleteConfigMap } from "./ConfigMap.service";
+import ConfigMapService from "./ConfigMap.service";
+const cms = new ConfigMapService();
 
 const loading = ref<boolean>(false);
 
@@ -53,16 +54,20 @@ const props = defineProps(["namespaceName", "configMapName"]);
 const emit = defineEmits(["close"]);
 
 const confirmConfigMapName = ref<string>("");
-const deleteConfigMapAndRefreshSelector = async () => {
+const deleteConfigMapAndRefreshSelector = () => {
   loading.value = true;
-  try {
-    await deleteConfigMap(props.namespaceName, confirmConfigMapName.value);
-    confirmConfigMapName.value = "";
-    loading.value = false;
-    emit("close");
-  } catch (error) {
-    console.error(error);
-  }
+  cms
+    .deleteConfigMap(props.namespaceName, confirmConfigMapName.value)
+    .then(() => {
+      confirmConfigMapName.value = "";
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+      emit("close");
+    });
 };
 </script>
 

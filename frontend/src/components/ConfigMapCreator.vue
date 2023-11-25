@@ -34,7 +34,8 @@
 <script setup lang="ts">
 import { ref, defineProps, defineEmits } from "vue";
 
-import { createConfigMap } from "./ConfigMap.service";
+import ConfigMapService from "./ConfigMap.service";
+const cms = new ConfigMapService();
 
 const loading = ref<boolean>(false);
 
@@ -43,16 +44,20 @@ const props = defineProps(["namespaceName"]);
 const emit = defineEmits(["close"]);
 
 const newConfigmapName = ref<string>("");
-const createConfigMapAndRefreshSelector = async () => {
+const createConfigMapAndRefreshSelector = () => {
   loading.value = true;
-  try {
-    await createConfigMap(props.namespaceName, newConfigmapName.value);
-    newConfigmapName.value = "";
-    loading.value = false;
-    emit("close");
-  } catch (error) {
-    console.error(error);
-  }
+  cms
+    .createConfigMap(props.namespaceName, newConfigmapName.value)
+    .then(() => {
+      newConfigmapName.value = "";
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+      emit("close");
+    });
 };
 </script>
 
