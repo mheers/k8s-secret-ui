@@ -2,32 +2,52 @@
   <div>
     <label for="namespaceDropdown">Select Namespace:</label>
     <v-select
-      :clearable="true"
       id="namespaceDropdown"
       :items="namespaceItems"
       @update:modelValue="handleNamespaceChange"
-    />
+      :loading="loading"
+      clearable
+    >
+      <template #append>
+        <v-btn color="primary" @click="getNamespaces()">
+          <v-icon>mdi-refresh</v-icon>
+        </v-btn>
+      </template>
+    </v-select>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, computed, defineEmits } from "vue";
 
+import NamespaceService from "./Namespace.service";
+const nss = new NamespaceService();
+
 const emit = defineEmits(["change"]);
 
 // Define reactive variables
 const namespaces = ref([]);
+const loading = ref<boolean>(false);
 
 // Fetch namespaces on component mount
-onMounted(async () => {
-  try {
-    const response = await fetch("http://localhost:8000/api/namespaces");
-    const data = await response.json();
-    namespaces.value = data; // Assuming data is an array of namespaces
-  } catch (error) {
-    console.error("Error fetching namespaces:", error);
-  }
+onMounted(() => {
+  getNamespaces();
 });
+
+const getNamespaces = () => {
+  loading.value = true;
+  nss
+    .getNamespaces()
+    .then((response) => {
+      namespaces.value = response;
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
 
 // Event handler for namespace change
 const handleNamespaceChange = (namespace: string) => {
