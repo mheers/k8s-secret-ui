@@ -46,4 +46,10 @@ export default class ConfigMapService {
             `/api/configs/${namespaceName}/${configMapName}`
         ).then((response) => response.json());
     };
+
+    public getConfigMaps(namespaceName: string) {
+        return fetch(
+            `/api/configs/${namespaceName}`
+        ).then((response) => response.json());
+    };
 }

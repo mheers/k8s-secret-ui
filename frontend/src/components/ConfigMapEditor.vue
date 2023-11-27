@@ -1,16 +1,14 @@
 <template>
-  <label-editor v-model="labels" />
+  <v-card>
+    <v-card-title> Labels </v-card-title>
 
-  <value-editor v-model="data" />
+    <value-editor v-model="labels" />
+  </v-card>
 
-  <v-ace-editor
-    v-model:value="content"
-    lang="json"
-    theme="chrome"
-    style="height: 300px"
-    active
-    v-if="false"
-  />
+  <v-card>
+    <v-card-title> Data </v-card-title>
+    <value-editor v-model="data" text-area />
+  </v-card>
 
   <v-dialog v-model="dialog" max-width="500px">
     <config-map-deleter
@@ -21,12 +19,26 @@
     />
   </v-dialog>
 
-  <v-btn color="primary" @click="saveConfigMap"> Save </v-btn>
-  <v-btn color="error" @click="dialog = true"> Delete </v-btn>
+  <v-sheet class="d-flex mb-6">
+    <v-sheet class="ma-2 pa-2 me-auto">
+      <v-btn color="primary" @click="saveConfigMap">
+        <v-icon>mdi-content-save</v-icon> Save
+      </v-btn>
+    </v-sheet>
+    <v-sheet class="ma-2 pa-2">
+      <v-btn color="blue darken-1" @click="getConfigMap">
+        <v-icon>mdi-lock-reset</v-icon> Reset
+      </v-btn>
+    </v-sheet>
+    <v-sheet class="ma-2 pa-2">
+      <v-btn color="error" @click="dialog = true">
+        <v-icon>mdi-delete</v-icon> Delete
+      </v-btn>
+    </v-sheet>
+  </v-sheet>
 </template>
 
 <script setup lang="ts">
-import { VAceEditor } from "vue3-ace-editor";
 import { ref, onMounted, watch, toRaw } from "vue";
 
 import ConfigMapService from "./ConfigMap.service";
@@ -35,7 +47,6 @@ const cms = new ConfigMapService();
 const props = defineProps(["namespaceName", "configMapName"]);
 
 // Define reactive variables
-const content = ref("");
 const data = ref<Map<string, string>>();
 const labels = ref<Map<string, string>>();
 const configmapNameRO = ref<string>("");
@@ -60,9 +71,7 @@ const getConfigMap = () => {
       labels.value = new Map();
       data.value = new Map();
 
-      content.value = JSON.stringify(cm.data); // Assuming data is an array of configs
-
-      data.value = new Map(Object.entries(cm.data));
+      data.value = new Map(Object.entries(cm.data || {}));
 
       if (cm.metadata) {
         configmapNameRO.value = cm.metadata.name;
@@ -91,7 +100,6 @@ const saveConfigMap = () => {
     });
 };
 
-import LabelEditor from "./LabelEditor.vue";
 import ValueEditor from "./ValueEditor.vue";
 import ConfigMapDeleter from "./ConfigMapDeleter.vue";
 </script>

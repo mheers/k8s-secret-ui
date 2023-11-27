@@ -1,59 +1,105 @@
 <template>
-  <label for="configMapDropdown">Select ConfigMap:</label>
+  <label for="configMapDropdown" :id="componentID">Select ConfigMap:</label>
   <v-select
     :clearable="true"
     id="configMapDropdown"
     :items="configItems"
     @update:modelValue="handleConfigMapChange"
+    :loading="loading"
   >
     <template #append>
-      <v-btn color="primary" @click="updateValues()"> refresh </v-btn>
-      <v-btn color="secondary" @click="dialog = true"> + </v-btn>
+      <v-btn color="primary" @click="getConfigMaps()">
+        <v-icon>mdi-refresh</v-icon>
+      </v-btn>
+      <v-btn color="secondary" @click="newNameEntering = true">
+        <v-icon>mdi-plus</v-icon>
+
+        <v-overlay
+          v-model="newNameEntering"
+          :attach="`#${componentID}`"
+          contained
+        >
+          <v-card class="pa-2" min-width="300px">
+            <v-text-field
+              v-model="newName"
+              label="New Name"
+              required
+              variant="outlined"
+              clearable
+              autofocus
+            >
+              <template #append>
+                <v-btn @click="create()" color="primary" :disabled="!newName">
+                  <v-icon>mdi-check</v-icon>
+                </v-btn>
+              </template>
+            </v-text-field>
+          </v-card>
+        </v-overlay>
+      </v-btn>
     </template>
   </v-select>
-
-  <v-dialog v-model="dialog" max-width="500px">
-    <config-map-creator
-      v-if="namespaceName"
-      :namespaceName="namespaceName"
-      @close="dialog = false"
-    />
-  </v-dialog>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, watch, computed, defineProps, defineEmits } from "vue";
 
+import ConfigMapService from "./ConfigMap.service";
+const cms = new ConfigMapService();
+
+const create = () => {
+  loading.value = true;
+  cms
+    .createConfigMap(props.namespaceName, newName.value)
+    .then(() => {
+      emit("change", newName.value);
+      newName.value = "";
+      newNameEntering.value = false;
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
+};
+
 const props = defineProps(["namespaceName"]);
 const emit = defineEmits(["change"]);
 
+const componentID = `component_${Math.floor(Math.random() * 1000)}`;
+
 // Define reactive variables
 const configs = ref([]);
-const selectedConfig = ref("");
-const dialog = ref<boolean>(false);
+let newName = ref<string>("");
+let newNameEntering = ref<boolean>(false);
+const loading = ref<boolean>(false);
 
 watch(
   () => props.namespaceName,
   () => {
-    updateValues();
+    getConfigMaps();
   }
 );
 
 // Fetch configs on component mount
-onMounted(async () => {
-  updateValues();
+onMounted(() => {
+  getConfigMaps();
 });
 
-const updateValues = async () => {
-  try {
-    const response = await fetch(
-      `http://localhost:8000/api/configs/${props.namespaceName}`
-    );
-    const data = await response.json();
-    configs.value = data; // Assuming data is an array of configs
-  } catch (error) {
-    console.error("Error fetching configs:", error);
-  }
+const getConfigMaps = () => {
+  loading.value = true;
+  cms
+    .getConfigMaps(props.namespaceName)
+    .then((response) => {
+      configs.value = response;
+    })
+    .catch((error) => {
+      console.error(error);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 // Event handler for config change
@@ -67,6 +113,4 @@ const configItems = computed(() => {
     return config.metadata.name;
   });
 });
-
-import ConfigMapCreator from "./ConfigMapCreator.vue";
 </script>

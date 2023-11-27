@@ -3,12 +3,8 @@
     <v-navigation-drawer v-model="drawer">
       <v-list>
         <v-list-item>
-          <v-list-item-content>
-            <v-list-item-title class="title"> Editor </v-list-item-title>
-            <v-list-item-subtitle>
-              secrets and configmaps
-            </v-list-item-subtitle>
-          </v-list-item-content>
+          <v-list-item-title class="title"> Editor </v-list-item-title>
+          <v-list-item-subtitle> secrets and configmaps </v-list-item-subtitle>
         </v-list-item>
 
         <v-divider></v-divider>

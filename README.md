@@ -1,4 +1,4 @@
-# KuUI (Kubernetes UI)
+# k8s-secret-ui (Kubernetes UI)
 
 Imported from https://github.com/viveksinghggits/kuui
 
@@ -16,27 +16,19 @@ To build the project from source, please clone it on your machine using below co
 git clone https://github.com/mheers/k8s-secret-ui.git
 ```
 
-and you can build the project using the command `go build -o kuui`. Optionally you can move the created binary
+and you can build the project using the command `go build -o k8s-secret-ui`. Optionally you can move the created binary
 into your path so that you can use this from where ever you want.
 
 ### Running it
 
-To run the project you just have to execute the `kuui` binary by providing it the kubeconfig file. Like below
+To run the project you just have to execute the `k8s-secret-ui` binary by providing it the kubeconfig file. Like below
 ```
-./kuui --kubeconfig=$HOME/.kube/config
+./k8s-secret-ui --kubeconfig=$HOME/.kube/config
 # or whereever you kubeconfig file is
 ```
 
-To access the UI you will just have to open the index.html file in your favourite web browser  and you will be asked to enter the endpoint of backend service for the first time. After that you can
-just acccess the web UI without any issues.
-
-![Demo](docs/kuui_demo.gif)
-
-
 ## RoadMap
 
-* Get the service deployed on Kubernetes
-
-**Note**
-I recently started working on this and would love to hear your inputs/feedback, please feel free to raise an issue
-or open a PR.
+- [ ] Get the service deployed on Kubernetes
+- [ ] Configure allowed namespaces, configmaps and secrets also using regex
+- [ ] Allow secrets to be modified
