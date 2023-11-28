@@ -31,4 +31,4 @@ To run the project you just have to execute the `k8s-secret-ui` binary by provid
 
 - [ ] Get the service deployed on Kubernetes
 - [ ] Configure allowed namespaces, configmaps and secrets also using regex
-- [ ] Allow secrets to be modified
+- [x] Allow secrets to be modified

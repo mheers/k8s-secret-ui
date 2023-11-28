@@ -18,10 +18,11 @@ import (
 )
 
 const (
-	configMapBaseURL  = "/api/configs"
-	secretBaseURL     = "/api/secrets"
-	namespacesBaseURL = "/api/namespaces"
-	settingsBaseURL   = "/api/settings"
+	apiEndpoint       = "/api"
+	configMapBaseURL  = apiEndpoint + "/configs"
+	secretBaseURL     = apiEndpoint + "/secrets"
+	namespacesBaseURL = apiEndpoint + "/namespaces"
+	settingsBaseURL   = apiEndpoint + "/settings"
 )
 
 var (
@@ -92,7 +93,12 @@ func createSecret(w http.ResponseWriter, r *http.Request) {
 
 	res := util.CreateSecret(kubeclient, secret)
 
-	json.NewEncoder(w).Encode(res)
+	err := json.NewEncoder(w).Encode(res)
+	if err != nil {
+		klog.Errorf("Error while encoding the secret: %s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func createConfigMap(w http.ResponseWriter, r *http.Request) {
@@ -101,7 +107,12 @@ func createConfigMap(w http.ResponseWriter, r *http.Request) {
 	decoder.Decode(&configMap)
 
 	res := util.CreateConfigMap(kubeclient, configMap)
-	json.NewEncoder(w).Encode(res)
+	err := json.NewEncoder(w).Encode(res)
+	if err != nil {
+		klog.Errorf("Error while encoding the configmap: %s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func deleteSecret(w http.ResponseWriter, r *http.Request) {
@@ -110,7 +121,12 @@ func deleteSecret(w http.ResponseWriter, r *http.Request) {
 	secretNS := pathParams["secretns"]
 
 	res := util.DeleteSecret(kubeclient, secretNS, secretName)
-	json.NewEncoder(w).Encode(res)
+	err := json.NewEncoder(w).Encode(res)
+	if err != nil {
+		klog.Errorf("Error while encoding the secret: %s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func deleteConfigMap(w http.ResponseWriter, r *http.Request) {
@@ -118,7 +134,12 @@ func deleteConfigMap(w http.ResponseWriter, r *http.Request) {
 	cmName := pathParams["cmname"]
 	cmNS := pathParams["cmns"]
 	res := util.DeleteConfigMap(kubeclient, cmNS, cmName)
-	json.NewEncoder(w).Encode(res)
+	err := json.NewEncoder(w).Encode(res)
+	if err != nil {
+		klog.Errorf("Error while encoding the configmap: %s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func updateSecret(res http.ResponseWriter, req *http.Request) {
@@ -127,8 +148,19 @@ func updateSecret(res http.ResponseWriter, req *http.Request) {
 	secretNS := pathParams["secretns"]
 
 	var secret corev1.Secret
-	json.NewDecoder(req.Body).Decode(&secret)
-	json.NewEncoder(res).Encode(util.UpdateSecret(kubeclient, secretNS, secretName, secret))
+	err := json.NewDecoder(req.Body).Decode(&secret)
+	if err != nil {
+		klog.Errorf("Error while decoding the secret: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
+
+	err = json.NewEncoder(res).Encode(util.UpdateSecret(kubeclient, secretNS, secretName, secret))
+	if err != nil {
+		klog.Errorf("Error while encoding the secret: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func getSecretData(res http.ResponseWriter, req *http.Request) {
@@ -136,23 +168,43 @@ func getSecretData(res http.ResponseWriter, req *http.Request) {
 	secretName := queryParams["secretname"]
 	secretNS := queryParams["secretns"]
 
-	json.NewEncoder(res).Encode(util.GetSecretData(kubeclient, secretNS, secretName))
+	err := json.NewEncoder(res).Encode(util.GetSecretData(kubeclient, secretNS, secretName))
+	if err != nil {
+		klog.Errorf("Error while encoding the secret data: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func getSecretsOfNS(res http.ResponseWriter, req *http.Request) {
 	queryParams := mux.Vars(req)
 	namespace := queryParams["secretns"]
-	json.NewEncoder(res).Encode(util.GetSecretsOfNS(kubeclient, namespace))
+	err := json.NewEncoder(res).Encode(util.GetSecretsOfNS(kubeclient, namespace))
+	if err != nil {
+		klog.Errorf("Error while encoding the secrets: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func getConfigMapsOfNS(res http.ResponseWriter, req *http.Request) {
 	queryParams := mux.Vars(req)
 	namespace := queryParams["cmns"]
-	json.NewEncoder(res).Encode(util.GetConfigMapsOfNS(kubeclient, namespace))
+	err := json.NewEncoder(res).Encode(util.GetConfigMapsOfNS(kubeclient, namespace))
+	if err != nil {
+		klog.Errorf("Error while encoding the configmaps: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func getNamespaces(res http.ResponseWriter, req *http.Request) {
-	json.NewEncoder(res).Encode(util.GetNamespaces(kubeclient))
+	err := json.NewEncoder(res).Encode(util.GetNamespaces(kubeclient))
+	if err != nil {
+		klog.Errorf("Error while encoding the namespaces: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func getConfigMap(res http.ResponseWriter, req *http.Request) {
@@ -160,7 +212,12 @@ func getConfigMap(res http.ResponseWriter, req *http.Request) {
 	cmName := queryParams["cmname"]
 	cmns := queryParams["cmns"]
 
-	json.NewEncoder(res).Encode(util.GetConfigMap(kubeclient, cmns, cmName))
+	err := json.NewEncoder(res).Encode(util.GetConfigMap(kubeclient, cmns, cmName))
+	if err != nil {
+		klog.Errorf("Error while encoding the configmap: %s", err.Error())
+		res.Write([]byte(err.Error()))
+		return
+	}
 }
 
 func updateConfigMap(res http.ResponseWriter, req *http.Request) {
