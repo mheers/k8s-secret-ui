@@ -1,4 +1,4 @@
-package main
+package settings
 
 type Settings struct {
 	AllowedNamespaces []string `json:"allowedNamespaces"`

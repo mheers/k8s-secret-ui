@@ -1,4 +1,4 @@
-package main
+package k8s
 
 import (
 	"errors"
@@ -11,7 +11,7 @@ import (
 	"k8s.io/klog"
 )
 
-func getK8sClient() (*kubernetes.Clientset, error) {
+func GetK8sClient() (*kubernetes.Clientset, error) {
 	config, err := rest.InClusterConfig()
 	if err != nil {
 		// If running outside of the cluster, try to load the configuration from
