@@ -14,6 +14,7 @@
             <v-row>
               <v-col>
                 <config-map-selector
+                  ref="configMapSelector"
                   v-model="configMapName"
                   v-if="namespaceName"
                   :namespaceName="namespaceName"
@@ -24,6 +25,7 @@
               v-if="namespaceName && configMapName"
               :configMapName="configMapName"
               :namespaceName="namespaceName"
+              @deleted="configMapName = ''"
             />
           </v-window-item>
 

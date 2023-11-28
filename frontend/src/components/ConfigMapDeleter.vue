@@ -55,7 +55,7 @@ const loading = ref<boolean>(false);
 
 const props = defineProps(["namespaceName", "configMapName"]);
 
-const emit = defineEmits(["close"]);
+const emit = defineEmits(["close", "deleted"]);
 
 const confirmConfigMapName = ref<string>("");
 const deleteConfigMapAndRefreshSelector = () => {
@@ -64,6 +64,7 @@ const deleteConfigMapAndRefreshSelector = () => {
     .deleteConfigMap(props.namespaceName, confirmConfigMapName.value)
     .then(() => {
       confirmConfigMapName.value = "";
+      emit("deleted");
     })
     .catch((error) => {
       console.error(error);

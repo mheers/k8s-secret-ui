@@ -57,9 +57,10 @@ const create = () => {
   cms
     .createConfigMap(props.namespaceName, newName.value)
     .then(() => {
+      getConfigMaps();
+      handleConfigMapChange(newName.value);
       newName.value = "";
       newNameEntering.value = false;
-      handleConfigMapChange(newName.value);
     })
     .catch((error) => {
       console.error(error);
@@ -95,6 +96,9 @@ watch(
   () => props.modelValue,
   () => {
     configMapName.value = props.modelValue;
+    if (props.modelValue === "") {
+      getConfigMaps();
+    }
   },
   { immediate: true }
 );

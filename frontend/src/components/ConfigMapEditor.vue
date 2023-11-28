@@ -1,14 +1,17 @@
 <template>
-  <v-card>
-    <v-card-title> Labels </v-card-title>
+  <v-tabs v-model="tab" bg-color="primary">
+    <v-tab value="data">data</v-tab>
+    <v-tab value="labels">labels</v-tab>
+  </v-tabs>
 
-    <value-editor v-model="labels" />
-  </v-card>
-
-  <v-card>
-    <v-card-title> Data </v-card-title>
-    <value-editor v-model="data" text-area />
-  </v-card>
+  <v-window v-model="tab">
+    <v-window-item value="data">
+      <value-editor v-model="data" text-area />
+    </v-window-item>
+    <v-window-item value="labels">
+      <value-editor v-model="labels" />
+    </v-window-item>
+  </v-window>
 
   <v-dialog v-model="dialog" max-width="500px">
     <config-map-deleter
@@ -16,6 +19,7 @@
       :namespaceName="namespaceName"
       :configMapName="configMapName"
       @close="dialog = false"
+      @deleted="$emit('deleted')"
     />
   </v-dialog>
 
@@ -52,12 +56,14 @@ import ConfigMapService from "./ConfigMap.service";
 const cms = new ConfigMapService();
 
 const props = defineProps(["namespaceName", "configMapName"]);
+const emit = defineEmits(["deleted"]);
 
 // Define reactive variables
 const data = ref<Map<string, string>>();
 const labels = ref<Map<string, string>>();
 const configmapNameRO = ref<string>("");
 const dialog = ref<boolean>(false);
+const tab = ref("data");
 
 watch(
   () => props.configMapName,
