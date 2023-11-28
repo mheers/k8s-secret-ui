@@ -11,25 +11,36 @@
       <v-card-text>
         <v-window v-model="tab">
           <v-window-item value="configmap">
-            <v-row>
-              <v-col>
-                <config-map-selector
-                  ref="configMapSelector"
-                  v-model="configMapName"
-                  v-if="namespaceName"
-                  :namespaceName="namespaceName"
-                />
-              </v-col>
-            </v-row>
-            <config-map-editor
+            <resource-selector
+              v-if="namespaceName"
+              v-model="configMapName"
+              :namespaceName="namespaceName"
+              resourceType="configmap"
+            />
+            <resource-editor
               v-if="namespaceName && configMapName"
-              :configMapName="configMapName"
+              :resourceName="configMapName"
               :namespaceName="namespaceName"
               @deleted="configMapName = ''"
+              resourceType="configmap"
             />
           </v-window-item>
 
-          <v-window-item value="secret"> Two </v-window-item>
+          <v-window-item value="secret">
+            <resource-selector
+              v-if="namespaceName"
+              v-model="secretName"
+              :namespaceName="namespaceName"
+              resourceType="secret"
+            />
+            <resource-editor
+              v-if="namespaceName && secretName"
+              :resourceName="secretName"
+              :namespaceName="namespaceName"
+              @deleted="secretName = ''"
+              resourceType="secret"
+            />
+          </v-window-item>
         </v-window>
       </v-card-text>
     </v-card>
@@ -44,11 +55,11 @@ export default {};
 import { ref } from "vue";
 
 import NamespaceSelector from "./NamespaceSelector.vue";
-import ConfigMapSelector from "./ConfigMapSelector.vue";
-import ConfigMapEditor from "./ConfigMapEditor.vue";
+import ResourceSelector from "./ResourceSelector.vue";
+import ResourceEditor from "./ResourceEditor.vue";
 
 const namespaceName = ref<string>("default");
+const configMapName = ref<string>("");
 const secretName = ref<string>("");
-const configMapName = ref<string>("test");
-const tab = ref("configmap");
+const tab = ref("secret");
 </script>

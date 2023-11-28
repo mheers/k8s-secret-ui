@@ -2,7 +2,8 @@
   <v-card>
     <v-card-title>
       <span class="headline"
-        >Confirm Deletion of ConfigMap {{ props.configMapName }}</span
+        >Confirm Deletion of {{ props.resourceType }}
+        {{ props.resourceName }}</span
       >
     </v-card-title>
 
@@ -16,11 +17,11 @@
           <v-col>
             <v-text-field
               :loading="loading"
-              v-model="confirmConfigMapName"
-              label="Type the name of the ConfigMap to confirm deletion."
+              v-model="confirmResourceName"
+              :label="`Type the name of the ${props.resourceType} to confirm deletion.`"
               :readonly="false"
               :counter="63"
-              :counter-value="confirmConfigMapName?.length"
+              :counter-value="confirmResourceName?.length"
             />
           </v-col>
         </v-row>
@@ -32,8 +33,8 @@
       <v-btn color="blue darken-1" @click="$emit('close')"> Cancel </v-btn>
       <v-btn
         color="blue darken-1"
-        @click="deleteConfigMapAndRefreshSelector"
-        :disabled="confirmConfigMapName != configMapName"
+        @click="deleteResourceAndRefreshSelector"
+        :disabled="confirmResourceName != resourceName"
       >
         Delete
       </v-btn>
@@ -48,22 +49,26 @@ export default {};
 <script setup lang="ts">
 import { ref } from "vue";
 
-import ConfigMapService from "./ConfigMap.service";
-const cms = new ConfigMapService();
+import ResourceService from "./Resource.service";
+const cms = new ResourceService();
 
 const loading = ref<boolean>(false);
 
-const props = defineProps(["namespaceName", "configMapName"]);
+const props = defineProps(["namespaceName", "resourceName", "resourceType"]);
 
 const emit = defineEmits(["close", "deleted"]);
 
-const confirmConfigMapName = ref<string>("");
-const deleteConfigMapAndRefreshSelector = () => {
+const confirmResourceName = ref<string>("");
+const deleteResourceAndRefreshSelector = () => {
   loading.value = true;
   cms
-    .deleteConfigMap(props.namespaceName, confirmConfigMapName.value)
+    .deleteResource(
+      props.namespaceName,
+      props.resourceType,
+      confirmResourceName.value
+    )
     .then(() => {
-      confirmConfigMapName.value = "";
+      confirmResourceName.value = "";
       emit("deleted");
     })
     .catch((error) => {

@@ -14,10 +14,11 @@
   </v-window>
 
   <v-dialog v-model="dialog" max-width="500px">
-    <config-map-deleter
+    <resource-deleter
       v-if="namespaceName"
       :namespaceName="namespaceName"
-      :configMapName="configMapName"
+      :resourceName="resourceName"
+      :resourceType="resourceType"
       @close="dialog = false"
       @deleted="$emit('deleted')"
     />
@@ -25,12 +26,12 @@
 
   <v-sheet class="d-flex mb-6">
     <v-sheet class="ma-2 pa-2 me-auto">
-      <v-btn color="primary" @click="saveConfigMap">
+      <v-btn color="primary" @click="saveResource">
         <v-icon>mdi-content-save</v-icon> Save
       </v-btn>
     </v-sheet>
     <v-sheet class="ma-2 pa-2">
-      <v-btn color="blue darken-1" @click="getConfigMap">
+      <v-btn color="blue darken-1" @click="getResource">
         <v-icon>mdi-lock-reset</v-icon> Reset
       </v-btn>
     </v-sheet>
@@ -50,12 +51,12 @@ export default {};
 import { ref, onMounted, watch, toRaw } from "vue";
 
 import ValueEditor from "./ValueEditor.vue";
-import ConfigMapDeleter from "./ConfigMapDeleter.vue";
+import ResourceDeleter from "./ResourceDeleter.vue";
 
-import ConfigMapService from "./ConfigMap.service";
-const cms = new ConfigMapService();
+import ResourceService from "./Resource.service";
+const cms = new ResourceService();
 
-const props = defineProps(["namespaceName", "configMapName"]);
+const props = defineProps(["namespaceName", "resourceName", "resourceType"]);
 const emit = defineEmits(["deleted"]);
 
 // Define reactive variables
@@ -66,20 +67,20 @@ const dialog = ref<boolean>(false);
 const tab = ref("data");
 
 watch(
-  () => props.configMapName,
+  () => props.resourceName,
   () => {
-    getConfigMap();
+    getResource();
   }
 );
 
 // Fetch configs on component mount
 onMounted(async () => {
-  getConfigMap();
+  getResource();
 });
 
-const getConfigMap = () => {
+const getResource = () => {
   cms
-    .getConfigMap(props.namespaceName, props.configMapName)
+    .getResource(props.namespaceName, props.resourceType, props.resourceName)
     .then((cm) => {
       labels.value = new Map();
       data.value = new Map();
@@ -99,11 +100,12 @@ const getConfigMap = () => {
     });
 };
 
-const saveConfigMap = () => {
+const saveResource = () => {
   cms
-    .saveConfigMap(
+    .saveResource(
       props.namespaceName,
-      props.configMapName,
+      props.resourceType,
+      props.resourceName,
       toRaw(labels.value ?? new Map<string, string>()),
       toRaw(data.value ?? new Map<string, string>())
     )

@@ -1,15 +1,17 @@
 <template>
-  <label for="configMapDropdown" :id="componentID">Select ConfigMap:</label>
+  <label for="resourceDropdown" :id="componentID"
+    >Select {{ $props.resourceType }}:</label
+  >
   <v-select
     :clearable="true"
-    id="configMapDropdown"
+    id="resourceDropdown"
     :items="configItems"
-    @update:modelValue="handleConfigMapChange"
+    @update:modelValue="handleResourceChange"
     :loading="loading"
-    v-model="configMapName"
+    v-model="resourceName"
   >
     <template #append>
-      <v-btn color="primary" @click="getConfigMaps()">
+      <v-btn color="primary" @click="getResources()">
         <v-icon>mdi-refresh</v-icon>
       </v-btn>
       <v-btn color="secondary" @click="newNameEntering = true">
@@ -49,16 +51,15 @@ export default {};
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 
-import ConfigMapService from "./ConfigMap.service";
-const cms = new ConfigMapService();
+import ResourceService from "./Resource.service";
+const rs = new ResourceService();
 
 const create = () => {
   loading.value = true;
-  cms
-    .createConfigMap(props.namespaceName, newName.value)
+  rs.createResource(props.namespaceName, props.resourceType, newName.value)
     .then(() => {
-      getConfigMaps();
-      handleConfigMapChange(newName.value);
+      getResources();
+      handleResourceChange(newName.value);
       newName.value = "";
       newNameEntering.value = false;
     })
@@ -73,47 +74,24 @@ const create = () => {
 const props = defineProps({
   namespaceName: { type: String, default: "" },
   modelValue: { type: String, default: "" },
+  resourceType: { type: String, default: "" },
 });
 const emit = defineEmits(["update:modelValue"]);
 
 const componentID = `component_${Math.floor(Math.random() * 1000)}`;
 
 // Define reactive variables
-const configs = ref([]);
-const configMapName = ref<string>("");
+const resources = ref([]);
+const resourceName = ref<string>("");
 const newName = ref<string>("");
 const newNameEntering = ref<boolean>(false);
 const loading = ref<boolean>(false);
 
-watch(
-  () => props.namespaceName,
-  () => {
-    getConfigMaps();
-  }
-);
-
-watch(
-  () => props.modelValue,
-  () => {
-    configMapName.value = props.modelValue;
-    if (props.modelValue === "") {
-      getConfigMaps();
-    }
-  },
-  { immediate: true }
-);
-
-// Fetch configs on component mount
-onMounted(() => {
-  getConfigMaps();
-});
-
-const getConfigMaps = () => {
+const getResources = () => {
   loading.value = true;
-  cms
-    .getConfigMaps(props.namespaceName)
+  rs.getResources(props.namespaceName, props.resourceType)
     .then((response) => {
-      configs.value = response;
+      resources.value = response;
     })
     .catch((error) => {
       console.error(error);
@@ -124,15 +102,38 @@ const getConfigMaps = () => {
 };
 
 // Event handler for config change
-const handleConfigMapChange = (name: string) => {
-  configMapName.value = name;
+const handleResourceChange = (name: string) => {
+  resourceName.value = name;
   emit("update:modelValue", name);
 };
 
 const configItems = computed(() => {
-  // just returns a list of names of the configs
-  return configs.value.map((config: any) => {
+  // just returns a list of names of the resources
+  return resources.value.map((config: any) => {
     return config.metadata.name;
   });
+});
+
+watch(
+  () => props.namespaceName,
+  () => {
+    getResources();
+  }
+);
+
+watch(
+  () => props.modelValue,
+  () => {
+    resourceName.value = props.modelValue;
+    if (props.modelValue === "") {
+      getResources();
+    }
+  },
+  { immediate: true }
+);
+
+// Fetch resources on component mount
+onMounted(() => {
+  getResources();
 });
 </script>
