@@ -68,7 +68,6 @@ const getNamespaces = () => {
 
 // Event handler for namespace update
 const handleNamespaceChange = () => {
-  console.log("handleNamespaceChange", namespaceName.value);
   emit("update:modelValue", namespaceName.value);
 };
 

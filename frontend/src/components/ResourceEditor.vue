@@ -1,4 +1,16 @@
 <template>
+  <span v-if="error">
+    <v-alert
+      closable
+      title="Error"
+      :text="error"
+      color="error"
+      @click:close="error = ''"
+    >
+    </v-alert>
+    <br />
+  </span>
+
   <v-tabs v-model="tab" bg-color="primary">
     <v-tab value="data">data</v-tab>
     <v-tab value="labels">labels</v-tab>
@@ -26,8 +38,11 @@
 
   <v-sheet class="d-flex mb-6">
     <v-sheet class="ma-2 pa-2 me-auto">
-      <v-btn color="primary" @click="saveResource">
+      <v-btn color="primary" @click="saveResource" :loading="saving">
         <v-icon>mdi-content-save</v-icon> Save
+        <template v-slot:append v-if="saved">
+          <v-icon>mdi-check</v-icon>
+        </template>
       </v-btn>
     </v-sheet>
     <v-sheet class="ma-2 pa-2">
@@ -65,6 +80,9 @@ const labels = ref<Map<string, string>>();
 const configmapNameRO = ref<string>("");
 const dialog = ref<boolean>(false);
 const tab = ref("data");
+const saving = ref<boolean>(false);
+const saved = ref<boolean>(false);
+const error = ref<string>("");
 
 watch(
   () => props.resourceName,
@@ -101,7 +119,8 @@ const getResource = () => {
 };
 
 const saveResource = () => {
-  cms
+  saving.value = true;
+  return cms
     .saveResource(
       props.namespaceName,
       props.resourceType,
@@ -109,9 +128,18 @@ const saveResource = () => {
       toRaw(labels.value ?? new Map<string, string>()),
       toRaw(data.value ?? new Map<string, string>())
     )
-    .then(() => {})
-    .catch((error) => {
-      console.error(error);
+    .then(() => {
+      saved.value = true;
+      setTimeout(() => {
+        saved.value = false;
+      }, 1500);
+    })
+    .catch((e) => {
+      console.error(e);
+      error.value = e;
+    })
+    .finally(() => {
+      saving.value = false;
     });
 };
 </script>

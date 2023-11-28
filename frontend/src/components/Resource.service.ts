@@ -1,7 +1,6 @@
 
 export default class ResourceService {
     public saveResource(namespaceName: string, resourceType: string, resourceName: string, labels: Map<string, string>, data: Map<string, string>) {
-        console.log("saveResource", namespaceName, resourceName, labels, data);
         const body: any = {
             "metadata": {
                 "name": resourceName,
@@ -18,7 +17,7 @@ export default class ResourceService {
                 body.stringData = Object.fromEntries(data);
                 break;
             default:
-                throw new Error(`Unknown resource type: ${resourceType}`);
+                return Promise.reject(`Unknown resource type: ${resourceType}`);
         }
 
         return fetch(`${this.baseUrl(resourceType)}/${namespaceName}/${resourceName}`, {

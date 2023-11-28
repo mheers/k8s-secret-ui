@@ -52,7 +52,7 @@ export default {};
 </script>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 
 import NamespaceSelector from "./NamespaceSelector.vue";
 import ResourceSelector from "./ResourceSelector.vue";
@@ -61,5 +61,10 @@ import ResourceEditor from "./ResourceEditor.vue";
 const namespaceName = ref<string>("default");
 const configMapName = ref<string>("");
 const secretName = ref<string>("");
-const tab = ref("secret");
+const tab = ref("");
+
+watch(namespaceName, () => {
+  configMapName.value = "";
+  secretName.value = "";
+});
 </script>
