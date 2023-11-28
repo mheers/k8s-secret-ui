@@ -34,15 +34,19 @@
   </v-container>
 </template>
 
+<script lang="ts">
+export default {};
+</script>
+
 <script setup lang="ts">
 import { ref } from "vue";
+
+import NamespaceSelector from "./NamespaceSelector.vue";
+import ConfigMapSelector from "./ConfigMapSelector.vue";
+import ConfigMapEditor from "./ConfigMapEditor.vue";
 
 const namespaceName = ref<string>("default");
 const secretName = ref<string>("");
 const configMapName = ref<string>("test");
 const tab = ref("configmap");
-
-import NamespaceSelector from "./NamespaceSelector.vue";
-import ConfigMapSelector from "./ConfigMapSelector.vue";
-import ConfigMapEditor from "./ConfigMapEditor.vue";
 </script>

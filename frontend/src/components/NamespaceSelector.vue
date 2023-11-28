@@ -18,6 +18,10 @@
   </div>
 </template>
 
+<script lang="ts">
+export default {};
+</script>
+
 <script setup lang="ts">
 import { ref, onMounted, watch, computed } from "vue";
 

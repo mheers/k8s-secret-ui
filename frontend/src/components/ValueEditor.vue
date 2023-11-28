@@ -93,6 +93,10 @@
   </v-container>
 </template>
 
+<script lang="ts">
+export default {};
+</script>
+
 <script setup lang="ts">
 import { ref, watch, onMounted } from "vue";
 

@@ -38,8 +38,15 @@
   </v-sheet>
 </template>
 
+<script lang="ts">
+export default {};
+</script>
+
 <script setup lang="ts">
 import { ref, onMounted, watch, toRaw } from "vue";
+
+import ValueEditor from "./ValueEditor.vue";
+import ConfigMapDeleter from "./ConfigMapDeleter.vue";
 
 import ConfigMapService from "./ConfigMap.service";
 const cms = new ConfigMapService();
@@ -99,7 +106,4 @@ const saveConfigMap = () => {
       console.error(error);
     });
 };
-
-import ValueEditor from "./ValueEditor.vue";
-import ConfigMapDeleter from "./ConfigMapDeleter.vue";
 </script>
