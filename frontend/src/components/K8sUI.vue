@@ -1,8 +1,6 @@
 <template>
   <v-container>
-    <namespace-selector
-      @change="(newNamespaceName) => (namespaceName = newNamespaceName)"
-    />
+    <namespace-selector v-model="namespaceName" />
 
     <v-card v-if="namespaceName">
       <v-tabs v-model="tab" bg-color="primary">
@@ -16,9 +14,7 @@
             <v-row>
               <v-col>
                 <config-map-selector
-                  @change="
-                    (newConfigMapName) => (configMapName = newConfigMapName)
-                  "
+                  v-model="configMapName"
                   v-if="namespaceName"
                   :namespaceName="namespaceName"
                 />
@@ -41,9 +37,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
 
-const namespaceName = ref("default");
-const secretName = ref("");
-const configMapName = ref("");
+const namespaceName = ref<string>("default");
+const secretName = ref<string>("");
+const configMapName = ref<string>("test");
 const tab = ref("configmap");
 
 import NamespaceSelector from "./NamespaceSelector.vue";

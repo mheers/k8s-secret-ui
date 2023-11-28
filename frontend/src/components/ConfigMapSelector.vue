@@ -6,6 +6,7 @@
     :items="configItems"
     @update:modelValue="handleConfigMapChange"
     :loading="loading"
+    v-model="configMapName"
   >
     <template #append>
       <v-btn color="primary" @click="getConfigMaps()">
@@ -42,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch, computed, defineProps, defineEmits } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 
 import ConfigMapService from "./ConfigMap.service";
 const cms = new ConfigMapService();
@@ -52,9 +53,9 @@ const create = () => {
   cms
     .createConfigMap(props.namespaceName, newName.value)
     .then(() => {
-      emit("change", newName.value);
       newName.value = "";
       newNameEntering.value = false;
+      handleConfigMapChange(newName.value);
     })
     .catch((error) => {
       console.error(error);
@@ -64,15 +65,19 @@ const create = () => {
     });
 };
 
-const props = defineProps(["namespaceName"]);
-const emit = defineEmits(["change"]);
+const props = defineProps({
+  namespaceName: { type: String, default: "" },
+  modelValue: { type: String, default: "" },
+});
+const emit = defineEmits(["update:modelValue"]);
 
 const componentID = `component_${Math.floor(Math.random() * 1000)}`;
 
 // Define reactive variables
 const configs = ref([]);
-let newName = ref<string>("");
-let newNameEntering = ref<boolean>(false);
+const configMapName = ref<string>("");
+const newName = ref<string>("");
+const newNameEntering = ref<boolean>(false);
 const loading = ref<boolean>(false);
 
 watch(
@@ -80,6 +85,14 @@ watch(
   () => {
     getConfigMaps();
   }
+);
+
+watch(
+  () => props.modelValue,
+  () => {
+    configMapName.value = props.modelValue;
+  },
+  { immediate: true }
 );
 
 // Fetch configs on component mount
@@ -103,8 +116,9 @@ const getConfigMaps = () => {
 };
 
 // Event handler for config change
-const handleConfigMapChange = (configMapName: string) => {
-  emit("change", configMapName);
+const handleConfigMapChange = (name: string) => {
+  configMapName.value = name;
+  emit("update:modelValue", name);
 };
 
 const configItems = computed(() => {

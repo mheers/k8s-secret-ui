@@ -4,6 +4,7 @@
     <v-select
       id="namespaceDropdown"
       :items="namespaceItems"
+      v-model="namespaceName"
       @update:modelValue="handleNamespaceChange"
       :loading="loading"
       clearable
@@ -18,21 +19,33 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, defineEmits } from "vue";
+import { ref, onMounted, watch, computed } from "vue";
 
 import NamespaceService from "./Namespace.service";
 const nss = new NamespaceService();
 
-const emit = defineEmits(["change"]);
+const emit = defineEmits(["update:modelValue"]);
+const props = defineProps({
+  modelValue: { type: String, default: "" },
+});
 
 // Define reactive variables
 const namespaces = ref([]);
+const namespaceName = ref<string>("");
 const loading = ref<boolean>(false);
 
 // Fetch namespaces on component mount
 onMounted(() => {
   getNamespaces();
 });
+
+watch(
+  () => props.modelValue,
+  () => {
+    namespaceName.value = props.modelValue;
+  },
+  { immediate: true }
+);
 
 const getNamespaces = () => {
   loading.value = true;
@@ -49,10 +62,10 @@ const getNamespaces = () => {
     });
 };
 
-// Event handler for namespace change
-const handleNamespaceChange = (namespace: string) => {
-  console.log("handleNamespaceChange", namespace);
-  emit("change", namespace);
+// Event handler for namespace update
+const handleNamespaceChange = () => {
+  console.log("handleNamespaceChange", namespaceName.value);
+  emit("update:modelValue", namespaceName.value);
 };
 
 const namespaceItems = computed(() => {
