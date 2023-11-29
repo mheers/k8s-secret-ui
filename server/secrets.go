@@ -14,27 +14,27 @@ func (s *Server) createSecret(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(&secret)
 	if err != nil {
 		klog.Errorf("Error while decoding the secret: %s", err.Error())
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// check if secret is allowed
 	if !isAllowed(secret.Name, s.secretRegexes) || !isAllowed(secret.Namespace, s.namespaceRegexes) {
 		klog.Errorf("Secret %s is not allowed in namespace %s", secret.Name, secret.Namespace)
-		w.Write([]byte("Secret is not allowed"))
+		http.Error(w, "Secret is not allowed", http.StatusForbidden)
 		return
 	}
 
 	secretCreated, err := s.manager.CreateSecret(secret)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(secretCreated)
 	if err != nil {
 		klog.Errorf("Error while encoding the secret: %s", err.Error())
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -48,34 +48,34 @@ func (s *Server) updateSecret(w http.ResponseWriter, r *http.Request) {
 	err := json.NewDecoder(r.Body).Decode(secret)
 	if err != nil {
 		klog.Errorf("Error while decoding the secret: %s", err.Error())
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	// check if secret name and namespace match the path params
 	if secretName != secret.Name || secretNamespace != secret.Namespace {
 		klog.Errorf("Secret name or namespace does not match the path params")
-		w.Write([]byte("Secret name or namespace does not match the path params"))
+		http.Error(w, "Secret name or namespace does not match the path params", http.StatusBadRequest)
 		return
 	}
 
 	// check if secret is allowed
 	if !isAllowed(secret.Name, s.secretRegexes) || !isAllowed(secret.Namespace, s.namespaceRegexes) {
 		klog.Errorf("Secret %s is not allowed in namespace %s", secret.Name, secret.Namespace)
-		w.Write([]byte("Secret is not allowed"))
+		http.Error(w, "Secret is not allowed", http.StatusForbidden)
 		return
 	}
 
 	secretUpdated, err := s.manager.UpdateSecret(secret)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(secretUpdated)
 	if err != nil {
 		klog.Errorf("Error while encoding the secret: %s", err.Error())
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -88,20 +88,20 @@ func (s *Server) getSecret(w http.ResponseWriter, r *http.Request) {
 	// check if secret is allowed
 	if !isAllowed(secretName, s.secretRegexes) || !isAllowed(secretNamespace, s.namespaceRegexes) {
 		klog.Errorf("Secret %s is not allowed in namespace %s", secretName, secretNamespace)
-		w.Write([]byte("Secret is not allowed"))
+		http.Error(w, "Secret is not allowed", http.StatusForbidden)
 		return
 	}
 
 	secret, err := s.manager.GetSecret(secretNamespace, secretName)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(secret)
 	if err != nil {
 		klog.Errorf("Error while encoding the secret data: %s", err.Error())
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -113,20 +113,27 @@ func (s *Server) getSecretsOfNS(w http.ResponseWriter, r *http.Request) {
 	// check if namespace is allowed
 	if !isAllowed(namespace, s.namespaceRegexes) {
 		klog.Errorf("Namespace %s is not allowed", namespace)
-		w.Write([]byte("Namespace is not allowed"))
+		http.Error(w, "Namespace is not allowed", http.StatusForbidden)
 		return
 	}
 
 	secrets, err := s.manager.GetSecretsOfNS(namespace)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(secrets)
+	allowedSecrets := []corev1.Secret{}
+	for _, secret := range secrets {
+		if isAllowed(secret.Name, s.secretRegexes) {
+			allowedSecrets = append(allowedSecrets, secret)
+		}
+	}
+
+	err = json.NewEncoder(w).Encode(allowedSecrets)
 	if err != nil {
 		klog.Errorf("Error while encoding the secrets: %s", err.Error())
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }
@@ -139,13 +146,13 @@ func (s *Server) deleteSecret(w http.ResponseWriter, r *http.Request) {
 	// check if secret is allowed
 	if !isAllowed(secretName, s.secretRegexes) || !isAllowed(secretNamespace, s.namespaceRegexes) {
 		klog.Errorf("Secret %s is not allowed in namespace %s", secretName, secretNamespace)
-		w.Write([]byte("Secret is not allowed"))
+		http.Error(w, "Secret is not allowed", http.StatusForbidden)
 		return
 	}
 
 	err := s.manager.DeleteSecret(secretNamespace, secretName)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 

@@ -135,8 +135,17 @@ const saveResource = () => {
       }, 1500);
     })
     .catch((e) => {
+      // // check if error is a promise
+      // if (e instanceof Promise) {
+      //   e.then((e) => {
+      //     error.value = e;
+      //   });
+      //   return;
+      // } else {
+
       console.error(e);
       error.value = e;
+      // }
     })
     .finally(() => {
       saving.value = false;

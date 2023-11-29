@@ -12,7 +12,7 @@ func (s *Server) getNamespaces(w http.ResponseWriter, r *http.Request) {
 	namespaces, err := s.manager.GetNamespaces()
 	if err != nil {
 		klog.Errorf("Error while getting the namespaces: %s", err.Error())
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -29,7 +29,7 @@ func (s *Server) getNamespaces(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		klog.Errorf("Error while encoding the namespaces: %s", err.Error())
-		w.Write([]byte(err.Error()))
+		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 }

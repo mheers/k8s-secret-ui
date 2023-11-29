@@ -1,3 +1,4 @@
+import http from '@/helpers/http'
 
 export default class ResourceService {
     public saveResource(namespaceName: string, resourceType: string, resourceName: string, labels: Map<string, string>, data: Map<string, string>) {
@@ -26,7 +27,7 @@ export default class ResourceService {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify(body),
-        });
+        }).then(http.handleResponse);
     };
 
     public createResource(namespaceName: string, resourceType: string, resourceName: string) {
@@ -41,7 +42,7 @@ export default class ResourceService {
                     "namespace": namespaceName,
                 },
             }),
-        });
+        }).then(http.handleResponse);
     };
 
     public deleteResource(namespaceName: string, resourceType: string, resourceName: string) {
@@ -50,14 +51,14 @@ export default class ResourceService {
             headers: {
                 "Content-Type": "application/json",
             },
-        });
+        }).then(http.handleResponse);
     };
 
     public getResource(namespaceName: string, resourceType: string, resourceName: string) {
         return fetch(
             `${this.baseUrl(resourceType)}/${namespaceName}/${resourceName}`
-        ).then((response) => {
-            return response.json().then((data: any) => {
+        ).then(http.handleResponse)
+            .then((data: any) => {
                 if (resourceType === "secret") {
                     // loop over the data and convert from base64 to string
                     Object.keys(data.data).forEach((key) => {
@@ -65,14 +66,13 @@ export default class ResourceService {
                     });
                 }
                 return data;
-            })
-        });
+            });
     };
 
     public getResources(namespaceName: string, resourceType: string) {
         return fetch(
             `${this.baseUrl(resourceType)}/${namespaceName}`
-        ).then((response) => response.json());
+        ).then(http.handleResponse);
     };
 
     private baseUrl(resourceType: string) {
