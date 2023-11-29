@@ -10,7 +10,7 @@ import (
 	"github.com/mheers/k8s-secret-ui/frontend"
 	"github.com/mheers/k8s-secret-ui/helpers"
 	"github.com/mheers/k8s-secret-ui/k8s"
-	"k8s.io/client-go/kubernetes"
+	"github.com/mheers/k8s-secret-ui/pkg/util"
 	"k8s.io/klog"
 )
 
@@ -23,32 +23,35 @@ const (
 )
 
 var (
-	kubeclient *kubernetes.Clientset
 
 	// EmbedFrontendFiles holds the frontend files
 	EmbedFrontendFiles = frontend.Assets()
 )
 
 type Server struct {
+	manager          *util.Manager
 	namespaceRegexes []string
 	configMapRegexes []string
 	secretRegexes    []string
 }
 
-func NewServer(namespaceRegexes, configMapRegexes, secretRegexes []string) *Server {
+func NewServer(namespaceRegexes, configMapRegexes, secretRegexes []string) (*Server, error) {
+	kubeclient, err := k8s.GetK8sClient()
+	if err != nil {
+		return nil, fmt.Errorf("error %s getting the k8s client", err.Error())
+	}
+
+	manager := util.NewManager(kubeclient)
+
 	return &Server{
 		namespaceRegexes: namespaceRegexes,
 		configMapRegexes: configMapRegexes,
 		secretRegexes:    secretRegexes,
-	}
+		manager:          manager,
+	}, nil
 }
 
 func (s *Server) Run() error {
-	var err error
-	kubeclient, err = k8s.GetK8sClient()
-	if err != nil {
-		return fmt.Errorf("error %s getting the k8s client", err.Error())
-	}
 
 	router := mux.NewRouter()
 
@@ -78,12 +81,13 @@ func (s *Server) Run() error {
 	hostPort := ":8000"
 	// allow CORS
 	klog.Infof("Endpoint is http://localhost%s", hostPort)
-	err = http.ListenAndServe(hostPort,
+	err := http.ListenAndServe(hostPort,
 		handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
 			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"}),
 			handlers.AllowedOrigins([]string{"*"}))(router))
 	if err != nil {
 		klog.Fatalf("Error %s starting the service.", err.Error())
+		return err
 	}
 
 	return nil

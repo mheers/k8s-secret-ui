@@ -14,7 +14,11 @@ var (
 		Use:   "server",
 		Short: "Start the server",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			s := server.NewServer(namespaceRegexes, configMapRegexes, secretRegexes)
+			s, err := server.NewServer(namespaceRegexes, configMapRegexes, secretRegexes)
+			if err != nil {
+				return err
+			}
+
 			return s.Run()
 		},
 	}

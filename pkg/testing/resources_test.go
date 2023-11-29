@@ -91,7 +91,10 @@ func (unit *unitTestSuite) TestGetConfigMapsOfNS(c *C) {
 }
 
 func (unit *unitTestSuite) getCMDataFor(cmName string) (map[string]string, error) {
-	configmaps := util.GetConfigMapsOfNS(unit.kubeclient, unit.testNS)
+	configmaps, err := util.NewManager(unit.kubeclient).GetConfigMapsOfNS(unit.testNS)
+	if err != nil {
+		return nil, err
+	}
 
 	for _, v := range configmaps {
 		if v.Name == cmName {
@@ -118,7 +121,11 @@ func (unit *unitTestSuite) TestGetSecretsOfNS(c *C) {
 }
 
 func (unit *unitTestSuite) getSecretDataFor(secretName string) (map[string]string, error) {
-	secrets := util.GetSecretsOfNS(unit.kubeclient, unit.testNS)
+	secrets, err := util.NewManager(unit.kubeclient).GetSecretsOfNS(unit.testNS)
+	if err != nil {
+		return nil, err
+	}
+
 	for _, v := range secrets {
 		if v.Name == secretName {
 			return convertMapByteToStr(v.Data), nil
@@ -200,13 +207,13 @@ func (unit *unitTestSuite) CreateTestNS() error {
 func (unit *unitTestSuite) TearDownSuite(c *C) {
 	// delete configmaps
 	for _, v := range unit.secrets {
-		err := util.DeleteSecret(unit.kubeclient, unit.testNS, v.Name)
+		err := util.NewManager(unit.kubeclient).DeleteSecret(unit.testNS, v.Name)
 		c.Assert(err, IsNil)
 	}
 
 	// delete secrets
 	for _, v := range unit.configMaps {
-		err := util.DeleteConfigMap(unit.kubeclient, unit.testNS, v.Name)
+		err := util.NewManager(unit.kubeclient).DeleteConfigMap(unit.testNS, v.Name)
 		c.Assert(err, IsNil)
 	}
 

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/mheers/k8s-secret-ui/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
 )
@@ -26,9 +25,13 @@ func (s *Server) createSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := util.CreateSecret(kubeclient, secret)
+	secretCreated, err := s.manager.CreateSecret(secret)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
 
-	err = json.NewEncoder(w).Encode(res)
+	err = json.NewEncoder(w).Encode(secretCreated)
 	if err != nil {
 		klog.Errorf("Error while encoding the secret: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -41,8 +44,8 @@ func (s *Server) updateSecret(w http.ResponseWriter, r *http.Request) {
 	secretName := pathParams["secretname"]
 	secretNamespace := pathParams["secretns"]
 
-	var secret corev1.Secret
-	err := json.NewDecoder(r.Body).Decode(&secret)
+	var secret *corev1.Secret
+	err := json.NewDecoder(r.Body).Decode(secret)
 	if err != nil {
 		klog.Errorf("Error while decoding the secret: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -63,7 +66,13 @@ func (s *Server) updateSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(util.UpdateSecret(kubeclient, secret))
+	secretUpdated, err := s.manager.UpdateSecret(secret)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(secretUpdated)
 	if err != nil {
 		klog.Errorf("Error while encoding the secret: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -83,7 +92,13 @@ func (s *Server) getSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(util.GetSecret(kubeclient, secretNamespace, secretName))
+	secret, err := s.manager.GetSecret(secretNamespace, secretName)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(secret)
 	if err != nil {
 		klog.Errorf("Error while encoding the secret data: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -102,7 +117,13 @@ func (s *Server) getSecretsOfNS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(util.GetSecretsOfNS(kubeclient, namespace))
+	secrets, err := s.manager.GetSecretsOfNS(namespace)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(secrets)
 	if err != nil {
 		klog.Errorf("Error while encoding the secrets: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -122,11 +143,11 @@ func (s *Server) deleteSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := util.DeleteSecret(kubeclient, secretNamespace, secretName)
-	err := json.NewEncoder(w).Encode(res)
+	err := s.manager.DeleteSecret(secretNamespace, secretName)
 	if err != nil {
-		klog.Errorf("Error while encoding the secret: %s", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}
+
+	w.Write([]byte("Secret deleted"))
 }

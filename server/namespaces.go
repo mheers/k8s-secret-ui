@@ -4,13 +4,18 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mheers/k8s-secret-ui/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
 )
 
 func (s *Server) getNamespaces(w http.ResponseWriter, r *http.Request) {
-	namespaces := util.GetNamespaces(kubeclient)
+	namespaces, err := s.manager.GetNamespaces()
+	if err != nil {
+		klog.Errorf("Error while getting the namespaces: %s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+
 	var allowedNamespaces []corev1.Namespace
 
 	// filter namespaces
@@ -20,7 +25,7 @@ func (s *Server) getNamespaces(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	err := json.NewEncoder(w).Encode(allowedNamespaces)
+	err = json.NewEncoder(w).Encode(allowedNamespaces)
 
 	if err != nil {
 		klog.Errorf("Error while encoding the namespaces: %s", err.Error())

@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/mheers/k8s-secret-ui/pkg/util"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/klog"
 )
@@ -26,8 +25,13 @@ func (s *Server) createConfigMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := util.CreateConfigMap(kubeclient, configMap)
-	err = json.NewEncoder(w).Encode(res)
+	configMapCreated, err := s.manager.CreateConfigMap(configMap)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(configMapCreated)
 	if err != nil {
 		klog.Errorf("Error while encoding the configmap: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -46,7 +50,14 @@ func (s *Server) getConfigMapsOfNS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(util.GetConfigMapsOfNS(kubeclient, namespace))
+	configMaps, err := s.manager.GetConfigMapsOfNS(namespace)
+	if err != nil {
+		klog.Errorf("Error while getting the configmaps: %s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(configMaps)
 	if err != nil {
 		klog.Errorf("Error while encoding the configmaps: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -66,7 +77,14 @@ func (s *Server) getConfigMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := json.NewEncoder(w).Encode(util.GetConfigMap(kubeclient, configMapNamespace, configMapName))
+	configMap, err := s.manager.GetConfigMap(configMapNamespace, configMapName)
+	if err != nil {
+		klog.Errorf("Error while getting the configmap: %s", err.Error())
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(configMap)
 	if err != nil {
 		klog.Errorf("Error while encoding the configmap: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -101,7 +119,13 @@ func (s *Server) updateConfigMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = json.NewEncoder(w).Encode(util.UpdateConfigMap(kubeclient, configMapNamespace, configMapName, configMap))
+	configMapUpdated, err := s.manager.UpdateConfigMap(configMapNamespace, configMapName, configMap)
+	if err != nil {
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(configMapUpdated)
 	if err != nil {
 		klog.Errorf("Error while encoding the configmap: %s", err.Error())
 		w.Write([]byte(err.Error()))
@@ -122,11 +146,12 @@ func (s *Server) deleteConfigMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	res := util.DeleteConfigMap(kubeclient, configMapNamespace, configMapName)
-	err := json.NewEncoder(w).Encode(res)
+	err := s.manager.DeleteConfigMap(configMapNamespace, configMapName)
 	if err != nil {
-		klog.Errorf("Error while encoding the configmap: %s", err.Error())
+		klog.Errorf("Error while deleting the configmap: %s", err.Error())
 		w.Write([]byte(err.Error()))
 		return
 	}
+
+	w.Write([]byte("ConfigMap deleted"))
 }
