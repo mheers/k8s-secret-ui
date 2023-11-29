@@ -3,7 +3,6 @@ module github.com/mheers/k8s-secret-ui
 go 1.21
 
 require (
-	github.com/gorilla/handlers v1.5.2
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.0
 	gopkg.in/check.v1 v1.0.0-20201130134442-10cb98267c6c
@@ -17,7 +16,6 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
-	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/go-logr/logr v1.3.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect
