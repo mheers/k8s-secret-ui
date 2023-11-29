@@ -1,7 +1,6 @@
 export default {
     handleResponse(response: Response) {
         if (!response.ok) {
-            debugger
             return response.text().then((text: string) => {
                 const error = response.statusText + ': ' + text
                 return Promise.reject(error)

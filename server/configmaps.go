@@ -120,13 +120,13 @@ func (s *Server) updateConfigMap(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// check if configMap is allowed
-	if !isAllowed(configMap.Name, s.secretRegexes) || !isAllowed(configMap.Namespace, s.namespaceRegexes) {
+	if !isAllowed(configMap.Name, s.configMapRegexes) || !isAllowed(configMap.Namespace, s.namespaceRegexes) {
 		klog.Errorf("ConfigMap %s is not allowed in namespace %s", configMap.Name, configMap.Namespace)
 		http.Error(w, "ConfigMap is not allowed", http.StatusForbidden)
 		return
 	}
 
-	configMapUpdated, err := s.manager.UpdateConfigMap(configMapNamespace, configMapName, configMap)
+	configMapUpdated, err := s.manager.UpdateConfigMap(&configMap)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -159,5 +159,5 @@ func (s *Server) deleteConfigMap(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Write([]byte("ConfigMap deleted"))
+	w.WriteHeader(http.StatusNoContent)
 }

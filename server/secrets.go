@@ -44,8 +44,8 @@ func (s *Server) updateSecret(w http.ResponseWriter, r *http.Request) {
 	secretName := pathParams["secretname"]
 	secretNamespace := pathParams["secretns"]
 
-	var secret *corev1.Secret
-	err := json.NewDecoder(r.Body).Decode(secret)
+	var secret corev1.Secret
+	err := json.NewDecoder(r.Body).Decode(&secret)
 	if err != nil {
 		klog.Errorf("Error while decoding the secret: %s", err.Error())
 		http.Error(w, err.Error(), http.StatusBadRequest)
@@ -66,7 +66,7 @@ func (s *Server) updateSecret(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	secretUpdated, err := s.manager.UpdateSecret(secret)
+	secretUpdated, err := s.manager.UpdateSecret(&secret)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

@@ -1,10 +1,10 @@
 <template>
   <v-card>
     <v-card-title>
-      <span class="headline"
-        >Confirm Deletion of {{ props.resourceType }}
-        {{ props.resourceName }}</span
-      >
+      <span class="headline">
+        Confirm Deletion of {{ props.resourceType }}
+        {{ props.resourceName }}
+      </span>
     </v-card-title>
 
     <v-card-subtitle>
@@ -56,7 +56,7 @@ const loading = ref<boolean>(false);
 
 const props = defineProps(["namespaceName", "resourceName", "resourceType"]);
 
-const emit = defineEmits(["close", "deleted"]);
+const emit = defineEmits(["close", "deleted", "error"]);
 
 const confirmResourceName = ref<string>("");
 const deleteResourceAndRefreshSelector = () => {
@@ -71,8 +71,9 @@ const deleteResourceAndRefreshSelector = () => {
       confirmResourceName.value = "";
       emit("deleted");
     })
-    .catch((error) => {
-      console.error(error);
+    .catch((e) => {
+      console.error(e);
+      emit("error", e);
     })
     .finally(() => {
       loading.value = false;

@@ -33,6 +33,7 @@
       :resourceType="resourceType"
       @close="dialog = false"
       @deleted="$emit('deleted')"
+      @error="(e) => (error = e)"
     />
   </v-dialog>
 
@@ -112,9 +113,11 @@ const getResource = () => {
           labels.value = new Map(Object.entries(cm.metadata.labels));
         }
       }
+      error.value = "";
     })
-    .catch((error) => {
-      console.error(error);
+    .catch((e) => {
+      console.error(e);
+      error.value = e;
     });
 };
 
@@ -133,19 +136,11 @@ const saveResource = () => {
       setTimeout(() => {
         saved.value = false;
       }, 1500);
+      error.value = "";
     })
     .catch((e) => {
-      // // check if error is a promise
-      // if (e instanceof Promise) {
-      //   e.then((e) => {
-      //     error.value = e;
-      //   });
-      //   return;
-      // } else {
-
       console.error(e);
       error.value = e;
-      // }
     })
     .finally(() => {
       saving.value = false;

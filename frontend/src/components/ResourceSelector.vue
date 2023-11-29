@@ -1,4 +1,16 @@
 <template>
+  <span v-if="error">
+    <v-alert
+      closable
+      title="Error"
+      :text="error"
+      color="error"
+      @click:close="error = ''"
+    >
+    </v-alert>
+    <br />
+  </span>
+
   <label for="resourceDropdown" :id="componentID"
     >Select {{ $props.resourceType }}:</label
   >
@@ -33,7 +45,10 @@
             >
               <template #append>
                 <v-btn @click="create()" color="primary" :disabled="!newName">
-                  <v-icon>mdi-check</v-icon>
+                  <v-icon>mdi-content-save</v-icon>
+                  <template v-slot:append v-if="saved">
+                    <v-icon>mdi-check</v-icon>
+                  </template>
                 </v-btn>
               </template>
             </v-text-field>
@@ -61,13 +76,19 @@ const create = () => {
       getResources();
       handleResourceChange(newName.value);
       newName.value = "";
-      newNameEntering.value = false;
+      saved.value = true;
+      setTimeout(() => {
+        saved.value = false;
+      }, 1500);
+      error.value = "";
     })
-    .catch((error) => {
-      console.error(error);
+    .catch((e) => {
+      console.error(e);
+      error.value = e;
     })
     .finally(() => {
       loading.value = false;
+      newNameEntering.value = false;
     });
 };
 
@@ -86,15 +107,19 @@ const resourceName = ref<string>("");
 const newName = ref<string>("");
 const newNameEntering = ref<boolean>(false);
 const loading = ref<boolean>(false);
+const saved = ref<boolean>(false);
+const error = ref<string>("");
 
 const getResources = () => {
   loading.value = true;
   rs.getResources(props.namespaceName, props.resourceType)
-    .then((response) => {
+    .then((response: any) => {
       resources.value = response;
+      error.value = "";
     })
-    .catch((error) => {
-      console.error(error);
+    .catch((e) => {
+      console.error(e);
+      error.value = e;
     })
     .finally(() => {
       loading.value = false;

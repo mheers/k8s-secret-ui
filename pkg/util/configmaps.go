@@ -27,8 +27,8 @@ func (m *Manager) GetConfigMap(cmns, cmName string) (*corev1.ConfigMap, error) {
 	return cm, nil
 }
 
-func (m *Manager) UpdateConfigMap(cmns, cmName string, configmap corev1.ConfigMap) (*corev1.ConfigMap, error) {
-	cm, err := m.kubeclient.CoreV1().ConfigMaps(cmns).Update(context.Background(), &configmap, metav1.UpdateOptions{})
+func (m *Manager) UpdateConfigMap(configmap *corev1.ConfigMap) (*corev1.ConfigMap, error) {
+	cm, err := m.kubeclient.CoreV1().ConfigMaps(configmap.Namespace).Update(context.Background(), configmap, metav1.UpdateOptions{})
 	if err != nil {
 		klog.Errorf("Error while updating the configmap: %s", err.Error())
 		return nil, err

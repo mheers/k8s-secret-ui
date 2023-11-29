@@ -60,10 +60,14 @@ export default class ResourceService {
         ).then(http.handleResponse)
             .then((data: any) => {
                 if (resourceType === "secret") {
-                    // loop over the data and convert from base64 to string
-                    Object.keys(data.data).forEach((key) => {
-                        data.data[key] = atob(data.data[key]);
-                    });
+                    if (data.data) {
+                        // loop over the data and convert from base64 to string
+                        Object.keys(data.data).forEach((key) => {
+                            data.data[key] = atob(data.data[key]);
+                        });
+                    } else {
+                        data.data = {};
+                    }
                 }
                 return data;
             });
