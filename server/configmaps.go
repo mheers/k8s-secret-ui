@@ -6,7 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 func (s *Server) createConfigMap(w http.ResponseWriter, r *http.Request) {

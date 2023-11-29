@@ -1,0 +1,12 @@
+version: "3.8"
+
+services:
+  k8s-secret-ui:
+    image: mheers/k8s-secret-ui
+    build: .
+    volumes:
+      - ~/.kube/config:/kubeconfig.yaml:ro
+    environment:
+      - KUBECONFIG=/kubeconfig.yaml
+    ports:
+      - 8000:8000

@@ -45,5 +45,6 @@ RUN apk add --no-cache curl
 WORKDIR /app
 COPY --from=backendBuilder /go/src/app/goapp /bin/backend
 
-CMD ["/bin/backend"]
-EXPOSE 3000
+ENTRYPOINT ["/bin/backend"]
+CMD ["server"]
+EXPOSE 8000

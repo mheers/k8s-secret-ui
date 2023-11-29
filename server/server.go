@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"regexp"
 
-	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/mheers/k8s-secret-ui/frontend"
 	"github.com/mheers/k8s-secret-ui/helpers"
 	"github.com/mheers/k8s-secret-ui/k8s"
 	"github.com/mheers/k8s-secret-ui/pkg/util"
-	"k8s.io/klog"
+	"k8s.io/klog/v2"
 )
 
 const (
@@ -23,7 +22,6 @@ const (
 )
 
 var (
-
 	// EmbedFrontendFiles holds the frontend files
 	EmbedFrontendFiles = frontend.Assets()
 )
@@ -80,11 +78,8 @@ func (s *Server) Run() error {
 
 	hostPort := ":8000"
 	// allow CORS
-	klog.Infof("Endpoint is http://localhost%s", hostPort)
-	err := http.ListenAndServe(hostPort,
-		handlers.CORS(handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"}),
-			handlers.AllowedMethods([]string{"GET", "POST", "PUT", "DELETE", "HEAD", "OPTIONS"}),
-			handlers.AllowedOrigins([]string{"*"}))(router))
+	klog.Infof("Local endpoint is http://localhost%s", hostPort)
+	err := http.ListenAndServe(hostPort, router)
 	if err != nil {
 		klog.Fatalf("Error %s starting the service.", err.Error())
 		return err
