@@ -6,15 +6,22 @@ import (
 )
 
 var (
+	namespaceRegexes []string
+	configMapRegexes []string
+	secretRegexes    []string
+
 	serverCmd = &cobra.Command{
 		Use:   "server",
 		Short: "Start the server",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return server.Run()
+			s := server.NewServer(namespaceRegexes, configMapRegexes, secretRegexes)
+			return s.Run()
 		},
 	}
 )
 
 func init() {
-	// serverCmd.PersistentFlags().StringVarP(&recipientFile, "recipient-file", "r", recipientFileDefault, "")
+	serverCmd.PersistentFlags().StringSliceVarP(&namespaceRegexes, "namespaces", "n", []string{}, "Allowed namespaces")
+	serverCmd.PersistentFlags().StringSliceVarP(&configMapRegexes, "configmaps", "c", []string{}, "Allowed configmaps")
+	serverCmd.PersistentFlags().StringSliceVarP(&secretRegexes, "secrets", "s", []string{}, "Allowed secrets")
 }

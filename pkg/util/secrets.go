@@ -18,7 +18,7 @@ func GetSecretsOfNS(kubeclient *kubernetes.Clientset, namespace string) []corev1
 	return secrets.Items
 }
 
-func GetSecretData(kubeclient *kubernetes.Clientset, secreteNS, secretName string) corev1.Secret {
+func GetSecret(kubeclient *kubernetes.Clientset, secreteNS, secretName string) corev1.Secret {
 	secret, err := kubeclient.CoreV1().Secrets(secreteNS).Get(context.Background(), secretName, metav1.GetOptions{})
 	if err != nil {
 		klog.Errorf("Error getting secret data %s", err.Error())
@@ -27,8 +27,8 @@ func GetSecretData(kubeclient *kubernetes.Clientset, secreteNS, secretName strin
 	return *secret
 }
 
-func UpdateSecret(kubeclient *kubernetes.Clientset, secretNS, secretName string, secret corev1.Secret) *corev1.Secret {
-	sec, err := kubeclient.CoreV1().Secrets(secretNS).Update(context.Background(), &secret, metav1.UpdateOptions{})
+func UpdateSecret(kubeclient *kubernetes.Clientset, secret corev1.Secret) *corev1.Secret {
+	sec, err := kubeclient.CoreV1().Secrets(secret.Namespace).Update(context.Background(), &secret, metav1.UpdateOptions{})
 	if err != nil {
 		klog.Errorf("Error updating the secret %s", err.Error())
 	}

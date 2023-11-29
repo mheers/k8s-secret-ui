@@ -5,12 +5,6 @@ import (
 )
 
 var (
-	// logLevelFlag describes the verbosity of logs
-	logLevelFlag string
-
-	// outputFormatFlag can be json, yaml or table
-	outputFormatFlag string
-
 	rootCmd = &cobra.Command{
 		Run: func(cmd *cobra.Command, args []string) {
 			cmd.Help()
