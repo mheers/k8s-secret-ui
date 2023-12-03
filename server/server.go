@@ -90,7 +90,7 @@ func (s *Server) Run() error {
 
 func isAllowed(name string, regexes []string) bool {
 	if len(regexes) == 0 {
-		return true
+		return false
 	}
 
 	for _, regex := range regexes {

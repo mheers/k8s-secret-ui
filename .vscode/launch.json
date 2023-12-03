@@ -18,6 +18,7 @@
                 "--namespaces=\"default\"",
                 "--namespaces",
                 "k8ssecrets",
+                "--configmaps=\"*\"",
                 "-s",
                 "tete",
             ]

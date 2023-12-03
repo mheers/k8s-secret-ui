@@ -6,7 +6,7 @@ image:
   repository: mheers/k8s-secret-ui
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "latest"
+  tag: "20231203.141234"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""

@@ -1,6 +1,8 @@
 # k8s-secret-ui (Kubernetes UI)
 
-Imported from https://github.com/viveksinghggits/kuui
+![logo.png](logo.png)
+
+Based on https://github.com/viveksinghggits/kuui
 
 The main purpose of this application is to have a simple UI that can be used to manage the configmaps/secrets of your Kubernetes cluster.
 
@@ -29,6 +31,6 @@ To run the project you just have to execute the `k8s-secret-ui` binary by provid
 
 ## RoadMap
 
-- [ ] Get the service deployed on Kubernetes
-- [ ] Configure allowed namespaces, configmaps and secrets also using regex
+- [x] Get the service deployed on Kubernetes
+- [x] Configure allowed namespaces, configmaps and secrets also using regex
 - [x] Allow secrets to be modified
