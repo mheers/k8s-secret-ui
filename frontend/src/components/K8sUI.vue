@@ -58,7 +58,7 @@ import NamespaceSelector from "./NamespaceSelector.vue";
 import ResourceSelector from "./ResourceSelector.vue";
 import ResourceEditor from "./ResourceEditor.vue";
 
-const namespaceName = ref<string>("default");
+const namespaceName = ref<string>("");
 const configMapName = ref<string>("");
 const secretName = ref<string>("");
 const tab = ref("");
